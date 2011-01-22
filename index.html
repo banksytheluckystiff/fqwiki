@@ -1,0 +1,316 @@
+<!--
+
+This code is not pretty, but it doesn't need to be.  It's only been 6 hours, but based on funding patterns I should be able to raise a few million off of this ;).
+
+Yours,
+Banksy The Lucky Stiff
+
+-->
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.min.js"></script>
+<link  href="http://fonts.googleapis.com/css?family=Lobster" rel="stylesheet" type="text/css" >
+<style type="text/css">
+body {
+	background: black;
+	color: white;
+	font-family: helvetica;
+}
+
+h1 {
+	font-family: 'Lobster', serif;
+}
+
+button {
+    border: 1px solid #ccc;
+    -webkit-border-radius: 3px;
+    background: #eee;
+    border-bottom: 2px solid #888;
+    border-right: 2px solid #888;
+    border-top: 1px solid #bbb;
+    border-left: 1px solid #bbb;
+    color: #333;
+    height: 40px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#images {
+	width: 800px;
+	height: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+	border: 1px solid white;
+	position: relative;
+	background: white;
+}
+
+#search {
+	height: 40px;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 300px;
+}
+
+#sbutton {
+	position: absolute;
+	top: 0px;
+	left: 310px;
+}
+
+#results {
+	width: 298px;
+	background: white;
+	color: black;
+	z-index: 1000000000;
+	position: absolute;
+	border: 1px solid #999;
+	top: 40px;
+	left: 0px;
+}
+
+#results div:hover {
+	background: blue;
+	cursor: pointer;
+	color: white;
+}
+
+#abstract {
+	width: 800px;
+	height: 50px;
+	margin-left: auto;
+	margin-right: auto;
+	font-weight: bold;
+	overflow: hidden;
+	background: #333;
+	text-align: center;
+	text-shadow: white 0px 0px 2px;
+	border-bottom-left-radius: 10px;
+	border-bottom-right-radius: 10px;
+}
+
+.sentence {
+	margin-top: 30px;
+}
+
+#voice {
+	width: 320px;
+	height: 80px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 600px;
+	border: 0px solid black;
+//	display: none;
+}
+
+.images_slide {
+	width: 800px;
+	height: 600px;
+	overflow: hidden;
+	position: absolute;
+	top: 0px;
+	left: 800px;
+}
+
+.img {
+	position: relative;
+	float: right;
+	clear: both;
+	border: 5px solid white;
+	z-index: 10000;
+}
+
+.img div {
+	position: absolute;
+	text-align: center;
+	background: rgba(0,0,0,0.4);
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	padding: 5px;
+	font-size: 10px;
+	font-weight: bold;
+	-webkit-box-sizing: border-box;
+}
+
+</style>
+</head>
+<body>
+<div style="width: 800px; margin-left: auto; margin-right: auto;">
+<center><img src="https://img.skitch.com/20110122-rg2ta4sxkr3ebtu6gya9qescse.png" /></center>
+<h1 style="position: absolute; top: 0px; left: 400px; font-size: 90px;">fqwiki</h1>
+<div style="position: absolute; top: 200px; left: 500px;">
+<input onkeyup="if(event.keyCode=='13') search();" style="font-size: 20px;" id="search" /> <button onclick="search();" id="sbutton">search</button>
+<div id="results"></div>
+</div>
+</div>
+<div style="display: none;">
+<div id="searchcontrol">Loading</div> 
+</div>
+<div id="images"> 
+	<div class="images_slide">Loading...</div>
+	<div class="images_slide">Loading...</div>
+</div>
+<div id="abstract">
+	<div class="sentence">Loading...</div>
+	<div class="sentence">Loading...</div>
+</div>
+<center>
+<iframe onload="if(loaded){ timer = setTimeout('consume()', 9000); }" id="voice"></iframe>
+</center>
+
+<script src="http://www.google.com/jsapi" type="text/javascript"></script> 
+<script type="text/javascript"> 
+var timer = null;
+
+function search() {
+	$(document.body).append('<script src="http://en.wikipedia.org/w/api.php?action=opensearch&search='+encodeURIComponent($('#search').val())+'&callback=lookup"><\/script>');
+}
+
+function lookup(result) {
+	topics = result[1];
+	$('#results').html('');
+	for(i = 0; i < (topics.length > 5 ? 5 : topics.length); i++) {
+		$('#results').append('<div>' + topics[i] + '</div>');
+		$('#results div:last').click(function() { $('#search').val($(this).html()); qwiki(encodeURIComponent($(this).html())); });
+	}
+};
+
+google.load('search', '1.0');
+
+function GetImages(query) {
+	var searchControl = new google.search.SearchControl();
+	searchControl.addSearcher(new google.search.ImageSearch());
+	searchControl.draw(document.getElementById("searchcontrol"));
+	searchControl.execute(query);
+	searchControl.setSearchCompleteCallback(this, imagesDone);
+}
+
+var zoomed = 0;
+var results = null;
+function imagesDone(sc, searcher) {
+	slide = '<div class="images_slide">';
+	if ( searcher.results && searcher.results.length > 0) {
+		results = searcher.results;
+		console.log(searcher.results[0]);
+		try {
+			var result = searcher.results[0];
+			slide += '<div class="img">';	
+			slide += '<div class="caption">' + result['title'] + '</div>';
+			slide += '<img src="' + result['tbUrl'] + '" />'
+			slide += '</div>'
+
+			var result = searcher.results[1];
+			slide += '<div class="img">';	
+			slide += '<div class="caption">' + result['title'] + '</div>';
+			slide += '<img src="' + result['tbUrl'] + '" />'
+			slide += '</div>'
+
+			var result = searcher.results[2];
+			slide += '<div class="img">';	
+			slide += '<div class="caption">' + result['title'] + '</div>';
+			slide += '<img src="' + result['tbUrl'] + '" />'
+			slide += '</div>'
+
+			var result = searcher.results[3];
+			slide += '<div class="img">';	
+			slide += '<div class="caption">' + result['title'] + '</div>';
+			slide += '<img src="' + result['tbUrl'] + '" />'
+			slide += '</div>'
+		} catch (e) {}
+	}
+	document.getElementById('images').innerHTML += slide + '</div>';
+	$('.images_slide:first').remove();
+	$('.images_slide:first').animate({left: '-800px'});
+	$('.images_slide:last').animate({left: '0px'});
+	zoomed = 0;
+	zoom();
+}
+
+function zoom() {
+	if(zoomed == 4) {
+		//$('.fullimg').each(function() {$(this).animate({opacity: 0.5});});
+		zoomed += 1;
+		setTimeout('zoom()', 1000);
+		return;
+	}
+	if(zoomed == 5) {
+		$('.fullimg:first').remove();
+		$('.fullimg:first').remove();
+		$('.fullimg:first').remove();
+		return;
+	}
+	$('.images_slide:last').append('<img class="fullimg" src="' + results[zoomed]['unescapedUrl'] + '" style="position: absolute; top: 0px; left: 0px; opacity: 0.0;" width="800px"/>');
+	$('.fullimg:last').animate({opacity: 1.0, width: 850, top: (Math.random() - 0.5)*20 - 25, left: (Math.random() - 0.5)*20 - 25}, 2000)
+	zoomed += 1
+	setTimeout('zoom()', 2000);
+}
+
+var abstract = null;
+var loaded = null;
+
+function consume() {
+	chunk = abstract.substring(0,100);
+	if(chunk == null) return;
+
+	if(abstract.length > 100) {
+		abstract = chunk.substring(chunk.lastIndexOf(" ")) + abstract.substring(100);
+		chunk = chunk.substring(0, chunk.lastIndexOf(" "));
+	} else {
+		abstract = '';
+	}
+	document.getElementById('voice').src = 'http://translate.google.com/translate_tts?tl=en&q=' + encodeURIComponent(chunk);
+	GetImages(chunk);
+
+	$('.sentence:first').remove();
+	$('.sentence:first').animate({marginTop: '-30px'});
+	$('#abstract').append('<div class="sentence">' + chunk + '</div>');
+}
+
+// Save the abstract and set up the first results
+function result(r) {
+	loaded = true;
+	abstract = r['results']['bindings'][0]['abstract']['value'];
+	abstract = abstract.substring(0, abstract.lastIndexOf("."));
+	consume();
+}
+
+function wikiabstract(r) {
+	loaded = true;
+	var rev = 0;
+	for(key in r.query.pages)
+		rev = key
+	abstract = r.query.pages[rev].revisions[0]['*'];
+	console.log(abstract);
+	// Holy bejeesus this is an insane bunch of regexes...
+	abstract = (abstract.replace(/{{[^]*?({{[^{}]*?}}[^]*?)*}}/g,'').replace(/{{[^]*?}}/g,'').replace(/\[\[[^:\]]*:[^\]]*?\]\]/g,'').replace(/\([^]*?\)/g,'').replace(/<ref[^]*?\/ref>/g,'').replace(/<ref[^>]*\/>/g,'').replace(/\[\[[^\]]*?\|/g,'[[').replace(/'''?/g,'').replace(/\n/g,'').replace(/\*/g,'').replace(/<!--.*-->/g,''))
+	
+	console.log(abstract);
+	// Sanitizing out what would be search terms
+	abstract = abstract.replace(/(\[\[|\]\])/g,'')
+	consume();
+
+}
+
+// Get the wikipedia abstract
+//var q = "select distinct ?abstract WHERE {<http://dbpedia.org/resource/Megan_Fox> dbpedia-owl:abstract ?abstract . FILTER langMatches( lang(?abstract), 'en' )}";
+//document.write('<script src="http://dbpedia.org/sparql?query='+escape(q)+'&format=application/sparql-results%2Bjsonp&callback=result"><\/script>');
+
+function qwiki(q) {
+	$('#results').html('');
+	clearTimeout(timer);
+	$(document.body).append('<script src="http://en.wikipedia.org/w/api.php?format=json&action=query&prop=revisions&titles='+(q)+'&rvprop=content&rvsection=0&callback=wikiabstract"><\/script>');
+}
+
+$(function() {
+	$('#search').val("Snake oil");
+	qwiki("Snake oil");
+});
+</script>
+<div style="width:400px; margin-left: auto; margin-right: auto;">
+<p>If you don't hear anything, chances are you've freaked out Google's servers, and there will be a captcha here that you need to fill out to continue.  This is a quick and dirty script to emulate qwiki without any server side code.  This could be taken a lot further since I'm already dumping a lot of entity data that I could be using to find better images.</p>
+</div>
+</body>
+</html>
