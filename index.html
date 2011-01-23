@@ -194,7 +194,7 @@ function imagesDone(sc, searcher) {
 	slide = '<div class="images_slide">';
 	if ( searcher.results && searcher.results.length > 0) {
 		results = searcher.results;
-		console.log(searcher.results[0]);
+		//console.log(searcher.results[0]);
 		try {
 			var result = searcher.results[0];
 			slide += '<div class="img">';	
@@ -283,11 +283,11 @@ function wikiabstract(r) {
 	for(key in r.query.pages)
 		rev = key
 	abstract = r.query.pages[rev].revisions[0]['*'];
-	console.log(abstract);
+	//console.log(abstract);
 	// Holy bejeesus this is an insane bunch of regexes...
 	abstract = (abstract.replace(/{{[^]*?({{[^{}]*?}}[^]*?)*}}/g,'').replace(/{{[^]*?}}/g,'').replace(/\[\[[^:\]]*:[^\]]*?\]\]/g,'').replace(/\([^]*?\)/g,'').replace(/<ref[^]*?\/ref>/g,'').replace(/<ref[^>]*\/>/g,'').replace(/\[\[[^\]]*?\|/g,'[[').replace(/'''?/g,'').replace(/\n/g,'').replace(/\*/g,'').replace(/<!--.*-->/g,''))
 	
-	console.log(abstract);
+	//console.log(abstract);
 	// Sanitizing out what would be search terms
 	abstract = abstract.replace(/(\[\[|\]\])/g,'')
 	consume();
